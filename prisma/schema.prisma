@@ -1,0 +1,140 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHT
+  MODERATE
+  VERY_ACTIVE
+  EXTRA_ACTIVE
+}
+
+enum FitnessGoal {
+  LOSE_WEIGHT
+  MAINTAIN
+  GAIN_MUSCLE
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACKS
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  profile       Profile?
+  mealEntries   MealEntry[]
+  weightLogs    WeightLog[]
+  workouts      Workout[]
+  personalRecords PersonalRecord[]
+}
+
+model Profile {
+  id                 String        @id @default(cuid())
+  userId             String        @unique
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  age                Int
+  gender             Gender
+  heightCm           Float
+  currentWeightKg    Float
+  targetWeightKg     Float
+  activityLevel      ActivityLevel
+  goal               FitnessGoal
+  dailyCalorieTarget Int
+  targetProteinGrams Int
+  targetCarbsGrams   Int
+  targetFatsGrams    Int
+  streakDays         Int           @default(0)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model FoodItem {
+  id            String      @id @default(cuid())
+  name          String
+  servingUnit   String
+  servingAmount Float
+  calories      Int
+  protein       Float
+  carbs         Float
+  fats          Float
+  category      String
+  isCustom      Boolean     @default(false)
+  userId        String?
+  createdAt     DateTime    @default(now())
+  mealEntries   MealEntry[]
+}
+
+model MealEntry {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodItemId   String
+  foodItem     FoodItem  @relation(fields: [foodItemId], references: [id], onDelete: Cascade)
+  mealType     MealType
+  servings     Float     @default(1.0)
+  loggedDate   DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+}
+
+model WeightLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weightKg  Float
+  date      DateTime @default(now())
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model Workout {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  durationMinutes Int
+  completed       Boolean       @default(false)
+  date            DateTime      @default(now())
+  exercises       ExerciseSet[]
+  createdAt       DateTime      @default(now())
+}
+
+model ExerciseSet {
+  id           String   @id @default(cuid())
+  workoutId    String
+  workout      Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exerciseName String
+  setNumber    Int
+  reps         Int
+  weightKg     Float
+  completed    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
+
+model PersonalRecord {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseName String
+  weightKg     Float
+  reps         Int
+  achievedDate DateTime @default(now())
+  createdAt    DateTime @default(now())
+}

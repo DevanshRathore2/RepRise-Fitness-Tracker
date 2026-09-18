@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bgGlowElena" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#0d1e4a" />
+      <stop offset="70%" stop-color="#0a0d3a" />
+      <stop offset="100%" stop-color="#05071e" />
+    </radialGradient>
+    <linearGradient id="blueRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00b0f4" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+    <linearGradient id="skinGradElena" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%" stop-color="#fae0d4" />
+      <stop offset="60%" stop-color="#eebb9f" />
+      <stop offset="100%" stop-color="#c98a69" />
+    </linearGradient>
+    <linearGradient id="hairGradElena" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a3022" />
+      <stop offset="100%" stop-color="#24140b" />
+    </linearGradient>
+    <filter id="glowElena" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <circle cx="80" cy="80" r="76" fill="url(#bgGlowElena)" stroke="url(#blueRim)" stroke-width="3.5" filter="url(#glowElena)" />
+  <circle cx="80" cy="80" r="76" fill="url(#bgGlowElena)" stroke="#00b0f4" stroke-width="3" />
+
+  <!-- High Ponytail Hair Silhouette -->
+  <path d="M 98 32 C 122 25, 134 45, 126 78 C 120 70, 114 62, 104 55 Z" fill="url(#hairGradElena)" />
+
+  <!-- Athletic Shoulders & Tank -->
+  <path d="M 32 152 C 38 124, 56 112, 80 112 C 104 112, 122 124, 128 152 Z" fill="#00b0f4" opacity="0.9" />
+  <path d="M 54 112 L 62 136 C 72 142, 88 142, 98 136 L 106 112 Z" fill="url(#skinGradElena)" />
+
+  <!-- Toned Neck -->
+  <path d="M 67 86 L 67 114 C 75 118, 85 118, 93 114 L 93 86 Z" fill="url(#skinGradElena)" />
+
+  <!-- Jawline and Head -->
+  <path d="M 52 66 C 52 92, 64 104, 80 104 C 96 104, 108 92, 108 66 C 108 45, 96 36, 80 36 C 64 36, 52 45, 52 66 Z" fill="url(#skinGradElena)" />
+
+  <!-- Athletic Headband (Electric Cyan Blue) -->
+  <path d="M 50 50 C 60 44, 100 44, 110 50 L 109 58 C 98 52, 62 52, 51 58 Z" fill="#00b0f4" stroke="#ffffff" stroke-width="0.8" />
+
+  <!-- Bangs & Hairline -->
+  <path d="M 50 50 C 56 34, 70 26, 80 26 C 94 26, 106 34, 110 50 C 104 46, 92 42, 80 42 C 68 42, 56 46, 50 50 Z" fill="url(#hairGradElena)" />
+  <path d="M 50 52 C 48 64, 50 78, 54 84 C 52 74, 52 62, 53 54 Z" fill="url(#hairGradElena)" />
+  <path d="M 110 52 C 112 64, 110 78, 106 84 C 108 74, 108 62, 107 54 Z" fill="url(#hairGradElena)" />
+
+  <!-- Eyebrows (Arched, Energetic) -->
+  <path d="M 59 59 C 64 57, 71 58, 73 61" stroke="#24140b" stroke-width="2.5" stroke-linecap="round" fill="none" />
+  <path d="M 87 61 C 89 58, 96 57, 101 59" stroke="#24140b" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+  <!-- Eyes with Cyan Catchlight -->
+  <ellipse cx="66" cy="67" rx="3.8" ry="4.2" fill="#24140b" />
+  <circle cx="67.5" cy="65.5" r="1.3" fill="#ffffff" />
+  <circle cx="68" cy="68" r="0.8" fill="#00b0f4" />
+
+  <ellipse cx="94" cy="67" rx="3.8" ry="4.2" fill="#24140b" />
+  <circle cx="95.5" cy="65.5" r="1.3" fill="#ffffff" />
+  <circle cx="96" cy="68" r="0.8" fill="#00b0f4" />
+
+  <!-- Nose -->
+  <path d="M 80 66 L 78 76 L 82 76" fill="none" stroke="#c98a69" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Warm Confident Smile -->
+  <path d="M 72 87 C 76 92, 84 92, 88 87" fill="none" stroke="#c98a69" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Ears with Cyan Highlight -->
+  <circle cx="50" cy="68" r="5" fill="url(#skinGradElena)" stroke="#00b0f4" stroke-width="0.8" />
+  <circle cx="110" cy="68" r="5" fill="url(#skinGradElena)" stroke="#38bdf8" stroke-width="0.8" />
+
+  <!-- Precision Nutrition Badge Overlay -->
+  <g transform="translate(112, 112)">
+    <circle cx="14" cy="14" r="14" fill="#00b0f4" stroke="#ffffff" stroke-width="1.5" />
+    <path d="M 14 7 L 16 12 L 21 12 L 17 15 L 18 20 L 14 17 L 10 20 L 11 15 L 7 12 L 12 12 Z" fill="#ffffff" />
+  </g>
+</svg>

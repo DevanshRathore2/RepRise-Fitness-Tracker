@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" width="100%" height="100%" fill="none">
+  <defs>
+    <linearGradient id="cometTailGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00b0f4" stop-opacity="0.3" />
+      <stop offset="60%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+    <filter id="starBloom" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="bloom" />
+      <feComposite in="SourceGraphic" in2="bloom" operator="over" />
+    </filter>
+  </defs>
+
+  <g filter="url(#starBloom)">
+    <!-- Comet Shooting Trail & 4-Point Star -->
+    <path
+      d="
+        M 55,38
+        L 210,25
+        Q 224,18 228,2
+        Q 233,21 262,24
+        Q 234,27 232,48
+        Q 225,32 208,30
+        L 55,38
+        Z
+      "
+      fill="url(#cometTailGrad)"
+    />
+  </g>
+
+  <!-- REPRISE Wordmark in Comet-style Bold Geometric Typography -->
+  <text
+    x="10"
+    y="86"
+    fill="#ffffff"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="44"
+    font-weight="900"
+    letter-spacing="-0.03em"
+  >
+    REP<tspan fill="#00b0f4">RISE</tspan>
+  </text>
+</svg>
