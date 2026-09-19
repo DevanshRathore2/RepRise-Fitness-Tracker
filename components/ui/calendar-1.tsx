@@ -1,6 +1,7 @@
 "use client";
+import React, { useState } from "react";
 import { DatePicker, parseDate } from "@ark-ui/react/date-picker";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, Calendar as CalendarIcon } from "lucide-react";
 
 export interface CalendarProps {
   value?: string; // YYYY-MM-DD
@@ -151,3 +152,54 @@ export default function BasicDatePicker({ value, onChange, className }: Calendar
     </DatePicker.Root>
   );
 }
+
+export function DatePickerField({
+  label,
+  value,
+  onChange,
+  className,
+}: {
+  label?: string;
+  value: string;
+  onChange: (dateStr: string) => void;
+  className?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className={`flex flex-col gap-1.5 w-full text-left relative ${className || ""}`}>
+      {label && (
+        <label className="text-xs font-bold text-zinc-300 tracking-wide uppercase font-display">
+          {label}
+        </label>
+      )}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="h-11 px-4 rounded-xl bg-[#0c1033]/90 hover:bg-[#0f1544]/90 focus:bg-[#11174d] border border-white/15 hover:border-white/30 focus:border-[#5865f2] text-white text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#5865f2]/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.03)] flex items-center justify-between cursor-pointer w-full"
+      >
+        <span className="font-mono text-sm">{value || "Select date"}</span>
+        <CalendarIcon className="w-4 h-4 text-[#00b0f4]" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 top-full mt-2 z-50">
+          <div
+            className="fixed inset-0 z-40 bg-black/20"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="relative z-50">
+            <BasicDatePicker
+              value={value}
+              onChange={(newDate) => {
+                onChange(newDate);
+                setIsOpen(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+

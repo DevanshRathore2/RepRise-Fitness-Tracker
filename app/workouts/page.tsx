@@ -22,7 +22,7 @@ import { Modal } from "@/components/ui/Modal";
 import { RepRiseStorage } from "@/lib/storage";
 import { PersonalRecord, WorkoutSession } from "@/types/fitness";
 import { PREMADE_SPLITS } from "@/lib/routines";
-import BasicDatePicker from "@/components/ui/calendar-1";
+import BasicDatePicker, { DatePickerField } from "@/components/ui/calendar-1";
 
 export default function WorkoutsPage() {
   const todayStr = new Date().toISOString().split("T")[0];
@@ -929,13 +929,10 @@ export default function WorkoutsPage() {
           />
 
           <div className="grid grid-cols-2 gap-3">
-            <Input
+            <DatePickerField
               label="Workout Date"
-              type="date"
-              required
               value={workoutDate}
-              onChange={(e) => setWorkoutDate(e.target.value)}
-              max={todayStr}
+              onChange={(d) => setWorkoutDate(d)}
             />
 
             <Input
@@ -1032,13 +1029,10 @@ export default function WorkoutsPage() {
             onChange={(e) => setPrExercise(e.target.value)}
           />
 
-          <Input
+          <DatePickerField
             label="Date Achieved"
-            type="date"
-            required
             value={prDate}
-            onChange={(e) => setPrDate(e.target.value)}
-            max={todayStr}
+            onChange={(d) => setPrDate(d)}
           />
 
           <div className="grid grid-cols-2 gap-3">

@@ -20,6 +20,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { RepRiseStorage } from "@/lib/storage";
 import { MealEntry, MealType, UserProfile } from "@/types/fitness";
+import BasicDatePicker, { DatePickerField } from "@/components/ui/calendar-1";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -39,6 +40,7 @@ export default function DashboardPage() {
   const todayStr = new Date().toISOString().split("T")[0];
   const [profile, setProfile] = useState<UserProfile>(RepRiseStorage.getProfile());
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [meals, setMeals] = useState<MealEntry[]>([]);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [quickWeightOpen, setQuickWeightOpen] = useState(false);
@@ -284,13 +286,33 @@ export default function DashboardPage() {
                   <CaretLeft size={16} weight="bold" />
                 </button>
 
-                <input
-                  type="date"
-                  aria-label="Filter diary date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="bg-transparent text-xs font-mono font-bold text-white px-2 py-0.5 focus:outline-none cursor-pointer"
-                />
+                <button
+                  type="button"
+                  onClick={() => setShowCalendar(!showCalendar)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-xs bg-[#0c1033] hover:bg-[#121844] text-xs font-mono font-bold text-white transition-all cursor-pointer border border-white/15"
+                  title="Open interactive calendar"
+                >
+                  <Calendar size={13} className="text-[#00b0f4]" weight="bold" />
+                  <span>{selectedDate}</span>
+                </button>
+
+                {showCalendar && (
+                  <div className="absolute right-0 top-full mt-2 z-50">
+                    <div
+                      className="fixed inset-0 z-40 bg-black/20"
+                      onClick={() => setShowCalendar(false)}
+                    />
+                    <div className="relative z-50">
+                      <BasicDatePicker
+                        value={selectedDate}
+                        onChange={(newDate) => {
+                          setSelectedDate(newDate);
+                          setShowCalendar(false);
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <button
                   type="button"
@@ -424,13 +446,10 @@ export default function DashboardPage() {
             onChange={(e) => setNewWeight(e.target.value)}
           />
 
-          <Input
+          <DatePickerField
             label="Log Date"
-            type="date"
-            required
             value={weightDate}
-            onChange={(e) => setWeightDate(e.target.value)}
-            max={todayStr}
+            onChange={(d) => setWeightDate(d)}
           />
 
           <Input

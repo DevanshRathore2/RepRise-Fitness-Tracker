@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { RepRiseStorage } from "@/lib/storage";
 import { UserProfile, WeightLog } from "@/types/fitness";
+import { DatePickerField } from "@/components/ui/calendar-1";
 
 export default function ProgressPage() {
   const [profile, setProfile] = useState<UserProfile>(RepRiseStorage.getProfile());
@@ -306,12 +307,10 @@ export default function ProgressPage() {
             onChange={(e) => setInputWeight(e.target.value)}
           />
 
-          <Input
+          <DatePickerField
             label="Date"
-            type="date"
-            required
             value={inputDate}
-            onChange={(e) => setInputDate(e.target.value)}
+            onChange={(d) => setInputDate(d)}
           />
 
           <Input
