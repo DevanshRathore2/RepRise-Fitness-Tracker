@@ -21,11 +21,11 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [name, setName] = useState(currentProfile.name);
-  const [age, setAge] = useState(currentProfile.age);
+  const [age, setAge] = useState<number | string>(currentProfile.age);
   const [gender, setGender] = useState<Gender>(currentProfile.gender);
-  const [heightCm, setHeightCm] = useState(currentProfile.heightCm);
-  const [currentWeightKg, setCurrentWeightKg] = useState(currentProfile.currentWeightKg);
-  const [targetWeightKg, setTargetWeightKg] = useState(currentProfile.targetWeightKg);
+  const [heightCm, setHeightCm] = useState<number | string>(currentProfile.heightCm);
+  const [currentWeightKg, setCurrentWeightKg] = useState<number | string>(currentProfile.currentWeightKg);
+  const [targetWeightKg, setTargetWeightKg] = useState<number | string>(currentProfile.targetWeightKg);
   const [activityLevel, setActivityLevel] = useState<ActivityLevel>(currentProfile.activityLevel);
   const [goal, setGoal] = useState<FitnessGoal>(currentProfile.goal);
 
@@ -126,7 +126,7 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
                 min={15}
                 max={90}
                 value={age}
-                onChange={(e) => setAge(Number(e.target.value))}
+                onChange={(e) => setAge(e.target.value)}
               />
 
               <div className="flex flex-col gap-1.5 text-left">
@@ -136,7 +136,7 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value as Gender)}
-                  className="h-11 px-3 rounded-sm bg-surface-onyx border border-white/10 text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="h-11 px-4 rounded-xl bg-[#0c1033]/90 hover:bg-[#0f1544]/90 focus:bg-[#11174d] border border-white/15 hover:border-white/30 text-white text-sm font-medium focus:outline-none focus:border-[#5865f2] focus:ring-2 focus:ring-[#5865f2]/40 transition-all duration-200"
                 >
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -149,7 +149,7 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
                 label="Height (cm)"
                 type="number"
                 value={heightCm}
-                onChange={(e) => setHeightCm(Number(e.target.value))}
+                onChange={(e) => setHeightCm(e.target.value)}
               />
 
               <Input
@@ -157,7 +157,7 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
                 type="number"
                 step="0.1"
                 value={currentWeightKg}
-                onChange={(e) => setCurrentWeightKg(Number(e.target.value))}
+                onChange={(e) => setCurrentWeightKg(e.target.value)}
               />
 
               <Input
@@ -165,7 +165,7 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
                 type="number"
                 step="0.1"
                 value={targetWeightKg}
-                onChange={(e) => setTargetWeightKg(Number(e.target.value))}
+                onChange={(e) => setTargetWeightKg(e.target.value)}
               />
             </div>
 

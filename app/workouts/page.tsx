@@ -44,30 +44,30 @@ export default function WorkoutsPage() {
     }
     return initialTicks;
   });
-  const [customExerciseWeights, setCustomExerciseWeights] = useState<Record<string, number>>({});
-  const [customExerciseReps, setCustomExerciseReps] = useState<Record<string, number>>({});
-  const [customExerciseSets, setCustomExerciseSets] = useState<Record<string, number>>({});
+  const [customExerciseWeights, setCustomExerciseWeights] = useState<Record<string, number | string>>({});
+  const [customExerciseReps, setCustomExerciseReps] = useState<Record<string, number | string>>({});
+  const [customExerciseSets, setCustomExerciseSets] = useState<Record<string, number | string>>({});
   const [routineLogDate, setRoutineLogDate] = useState<string>(todayStr);
-  const [routineDurationMinutes, setRoutineDurationMinutes] = useState<number>(60);
+  const [routineDurationMinutes, setRoutineDurationMinutes] = useState<number | string>(60);
   const [routineFeedback, setRoutineFeedback] = useState<string | null>(null);
 
   // Add custom workout modal state
   const [newWorkoutModalOpen, setNewWorkoutModalOpen] = useState(false);
   const [workoutDate, setWorkoutDate] = useState<string>(todayStr);
   const [workoutName, setWorkoutName] = useState("");
-  const [durationMinutes, setDurationMinutes] = useState(60);
+  const [durationMinutes, setDurationMinutes] = useState<number | string>(60);
   const [exerciseName, setExerciseName] = useState("");
   const [targetMuscle, setTargetMuscle] = useState("Chest");
-  const [setsCount, setSetsCount] = useState(3);
-  const [repsCount, setRepsCount] = useState(10);
-  const [weightKg, setWeightKg] = useState(80);
+  const [setsCount, setSetsCount] = useState<number | string>(3);
+  const [repsCount, setRepsCount] = useState<number | string>(10);
+  const [weightKg, setWeightKg] = useState<number | string>(80);
 
   // New PR modal state
   const [prModalOpen, setPrModalOpen] = useState(false);
   const [prDate, setPrDate] = useState<string>(todayStr);
   const [prExercise, setPrExercise] = useState("");
-  const [prWeight, setPrWeight] = useState(100);
-  const [prReps, setPrReps] = useState(1);
+  const [prWeight, setPrWeight] = useState<number | string>(100);
+  const [prReps, setPrReps] = useState<number | string>(1);
 
   const refreshData = () => {
     setWorkouts(RepRiseStorage.getWorkouts());
@@ -146,14 +146,17 @@ export default function WorkoutsPage() {
     }
 
     const exerciseLogs = selectedExercises.map((ex) => {
-      const sCount = customExerciseSets[ex.id] || ex.defaultSets;
-      const rCount = customExerciseReps[ex.id] || ex.defaultReps;
-      const wKg = customExerciseWeights[ex.id] !== undefined ? customExerciseWeights[ex.id] : ex.defaultWeightKg;
+      const sCount = Number(customExerciseSets[ex.id]) || ex.defaultSets;
+      const rCount = Number(customExerciseReps[ex.id]) || ex.defaultReps;
+      const wKg =
+        customExerciseWeights[ex.id] !== undefined && customExerciseWeights[ex.id] !== ""
+          ? Number(customExerciseWeights[ex.id])
+          : ex.defaultWeightKg;
 
-      const sets = Array.from({ length: sCount }, (_, i) => ({
+      const sets = Array.from({ length: Math.max(1, sCount) }, (_, i) => ({
         setNumber: i + 1,
-        reps: rCount,
-        weightKg: wKg,
+        reps: Math.max(1, rCount),
+        weightKg: Math.max(0, wKg),
         completed: true,
       }));
 
@@ -171,7 +174,7 @@ export default function WorkoutsPage() {
     RepRiseStorage.addWorkout({
       name: sessionName,
       date: routineLogDate || todayStr,
-      durationMinutes: routineDurationMinutes || 60,
+      durationMinutes: Number(routineDurationMinutes) || 60,
       completed: true,
       exercises: exerciseLogs,
     });
@@ -198,17 +201,21 @@ export default function WorkoutsPage() {
     e.preventDefault();
     if (!workoutName || !exerciseName) return;
 
-    const sets = Array.from({ length: setsCount }, (_, i) => ({
+    const s = Math.max(1, Number(setsCount) || 1);
+    const r = Math.max(1, Number(repsCount) || 1);
+    const w = Math.max(0, Number(weightKg) || 0);
+
+    const sets = Array.from({ length: s }, (_, i) => ({
       setNumber: i + 1,
-      reps: repsCount,
-      weightKg,
+      reps: r,
+      weightKg: w,
       completed: true,
     }));
 
     RepRiseStorage.addWorkout({
       name: workoutName.trim(),
       date: workoutDate || todayStr,
-      durationMinutes,
+      durationMinutes: Number(durationMinutes) || 60,
       completed: true,
       exercises: [
         {
@@ -233,8 +240,8 @@ export default function WorkoutsPage() {
 
     RepRiseStorage.addPersonalRecord({
       exerciseName: prExercise.trim(),
-      weightKg: Number(prWeight),
-      reps: Number(prReps),
+      weightKg: Number(prWeight) || 0,
+      reps: Number(prReps) || 1,
       achievedDate: prDate || todayStr,
     });
 
@@ -517,10 +524,10 @@ export default function WorkoutsPage() {
                           onChange={(e) =>
                             setCustomExerciseSets((prev) => ({
                               ...prev,
-                              [ex.id]: Math.max(1, parseInt(e.target.value) || 1),
+                              [ex.id]: e.target.value,
                             }))
                           }
-                          className="w-12 h-7 text-center rounded-xs bg-[#0b0f33] border border-white/15 text-white font-bold text-xs focus:outline-none focus:border-[#00b0f4]"
+                          className="w-12 h-7 text-center rounded-sm bg-[#0c1033] border border-white/20 text-white font-bold text-xs focus:outline-none focus:border-[#00b0f4] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
                         />
 
                         <span className="text-zinc-400 text-[11px]">Reps:</span>
@@ -533,10 +540,10 @@ export default function WorkoutsPage() {
                           onChange={(e) =>
                             setCustomExerciseReps((prev) => ({
                               ...prev,
-                              [ex.id]: Math.max(1, parseInt(e.target.value) || 1),
+                              [ex.id]: e.target.value,
                             }))
                           }
-                          className="w-12 h-7 text-center rounded-xs bg-[#0b0f33] border border-white/15 text-white font-bold text-xs focus:outline-none focus:border-[#00b0f4]"
+                          className="w-12 h-7 text-center rounded-sm bg-[#0c1033] border border-white/20 text-white font-bold text-xs focus:outline-none focus:border-[#00b0f4] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
                         />
                       </div>
 
@@ -552,10 +559,10 @@ export default function WorkoutsPage() {
                           onChange={(e) =>
                             setCustomExerciseWeights((prev) => ({
                               ...prev,
-                              [ex.id]: parseFloat(e.target.value) || 0,
+                              [ex.id]: e.target.value,
                             }))
                           }
-                          className="w-16 h-7 text-center rounded-xs bg-[#0b0f33] border border-white/15 text-[#35ed7e] font-bold text-xs focus:outline-none focus:border-[#35ed7e]"
+                          className="w-16 h-7 text-center rounded-sm bg-[#0c1033] border border-white/20 text-[#35ed7e] font-bold text-xs focus:outline-none focus:border-[#35ed7e] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
                         />
                         <span className="text-zinc-400 text-[11px]">kg</span>
                       </div>
@@ -591,8 +598,8 @@ export default function WorkoutsPage() {
                     min={10}
                     max={300}
                     value={routineDurationMinutes}
-                    onChange={(e) => setRoutineDurationMinutes(parseInt(e.target.value) || 60)}
-                    className="w-14 h-9 text-center rounded-sm bg-surface-onyx border border-white/15 text-white text-xs font-mono font-bold focus:outline-none focus:border-[#00b0f4]"
+                    onChange={(e) => setRoutineDurationMinutes(e.target.value)}
+                    className="w-14 h-9 text-center rounded-sm bg-surface-onyx border border-white/15 text-white text-xs font-mono font-bold focus:outline-none focus:border-[#00b0f4] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="text-xs text-zinc-400 font-mono">min</span>
                 </div>
@@ -892,7 +899,7 @@ export default function WorkoutsPage() {
               type="number"
               required
               value={durationMinutes}
-              onChange={(e) => setDurationMinutes(Number(e.target.value))}
+              onChange={(e) => setDurationMinutes(e.target.value)}
             />
           </div>
 
@@ -903,7 +910,7 @@ export default function WorkoutsPage() {
             <select
               value={targetMuscle}
               onChange={(e) => setTargetMuscle(e.target.value)}
-              className="h-11 px-3 rounded-sm bg-surface-onyx border border-white/10 text-white text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              className="h-11 px-4 rounded-xl bg-[#0c1033]/90 hover:bg-[#0f1544]/90 focus:bg-[#11174d] border border-white/15 hover:border-white/30 text-white text-sm font-medium focus:outline-none focus:border-[#5865f2] focus:ring-2 focus:ring-[#5865f2]/40 transition-all duration-200"
             >
               <option value="Chest">Chest</option>
               <option value="Back">Back / Lats</option>
@@ -928,7 +935,7 @@ export default function WorkoutsPage() {
               min={1}
               max={15}
               value={setsCount}
-              onChange={(e) => setSetsCount(Number(e.target.value))}
+              onChange={(e) => setSetsCount(e.target.value)}
             />
 
             <Input
@@ -937,7 +944,7 @@ export default function WorkoutsPage() {
               min={1}
               max={50}
               value={repsCount}
-              onChange={(e) => setRepsCount(Number(e.target.value))}
+              onChange={(e) => setRepsCount(e.target.value)}
             />
 
             <Input
@@ -945,7 +952,7 @@ export default function WorkoutsPage() {
               type="number"
               step="0.5"
               value={weightKg}
-              onChange={(e) => setWeightKg(Number(e.target.value))}
+              onChange={(e) => setWeightKg(e.target.value)}
             />
           </div>
 
@@ -997,7 +1004,7 @@ export default function WorkoutsPage() {
               step="0.5"
               required
               value={prWeight}
-              onChange={(e) => setPrWeight(Number(e.target.value))}
+              onChange={(e) => setPrWeight(e.target.value)}
             />
 
             <Input
@@ -1007,7 +1014,7 @@ export default function WorkoutsPage() {
               max={20}
               required
               value={prReps}
-              onChange={(e) => setPrReps(Number(e.target.value))}
+              onChange={(e) => setPrReps(e.target.value)}
             />
           </div>
 

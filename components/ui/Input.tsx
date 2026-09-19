@@ -29,7 +29,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           className={twMerge(
             clsx(
-              "h-11 px-3.5 rounded-lg bg-[#070b24]/80 border border-white/15 text-white text-sm placeholder:text-zinc-400 transition-all focus:outline-none focus:border-[#5865f2] focus:ring-2 focus:ring-[#5865f2]/20 hover:border-white/25 disabled:opacity-50 disabled:cursor-not-allowed shadow-inner",
+              "h-11 px-4 rounded-xl bg-[#0c1033]/90 hover:bg-[#0f1544]/90 focus:bg-[#11174d] border border-white/15 hover:border-white/30 focus:border-[#5865f2] text-white text-sm font-medium placeholder:text-zinc-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#5865f2]/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.03)] focus:shadow-[0_0_20px_rgba(88,101,242,0.3)] disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
               error && "border-red-500/60 focus:border-red-500 focus:ring-red-500",
               className
             )

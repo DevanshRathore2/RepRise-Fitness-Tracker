@@ -17,28 +17,32 @@ interface CalorieCalculatorModalProps {
 
 export function CalorieCalculatorModal({ isOpen, onClose }: CalorieCalculatorModalProps) {
   const router = useRouter();
-  const [age, setAge] = useState(28);
+  const [age, setAge] = useState<string | number>(28);
   const [gender, setGender] = useState<Gender>("male");
-  const [weightKg, setWeightKg] = useState(82);
-  const [heightCm, setHeightCm] = useState(180);
+  const [weightKg, setWeightKg] = useState<string | number>(82);
+  const [heightCm, setHeightCm] = useState<string | number>(180);
   const [activity, setActivity] = useState<ActivityLevel>("moderate");
   const [goal, setGoal] = useState<FitnessGoal>("lose_weight");
 
+  const parsedAge = age === "" ? 25 : Number(age);
+  const parsedWeight = weightKg === "" ? 75 : Number(weightKg);
+  const parsedHeight = heightCm === "" ? 175 : Number(heightCm);
+
   const targets = calculateNutritionTargets({
-    age,
+    age: isNaN(parsedAge) || parsedAge <= 0 ? 25 : parsedAge,
     gender,
-    weightKg,
-    heightCm,
+    weightKg: isNaN(parsedWeight) || parsedWeight <= 0 ? 75 : parsedWeight,
+    heightCm: isNaN(parsedHeight) || parsedHeight <= 0 ? 175 : parsedHeight,
     activityLevel: activity,
     goal,
   });
 
   const handleApplyAndLaunch = () => {
     const profile = RepRiseStorage.getProfile();
-    profile.age = age;
+    profile.age = isNaN(parsedAge) || parsedAge <= 0 ? 25 : parsedAge;
     profile.gender = gender;
-    profile.heightCm = heightCm;
-    profile.currentWeightKg = weightKg;
+    profile.heightCm = isNaN(parsedHeight) || parsedHeight <= 0 ? 175 : parsedHeight;
+    profile.currentWeightKg = isNaN(parsedWeight) || parsedWeight <= 0 ? 75 : parsedWeight;
     profile.activityLevel = activity;
     profile.goal = goal;
     profile.dailyCalorieTarget = targets.dailyCalories;
@@ -61,16 +65,16 @@ export function CalorieCalculatorModal({ isOpen, onClose }: CalorieCalculatorMod
             min={15}
             max={90}
             value={age}
-            onChange={(e) => setAge(parseInt(e.target.value) || 25)}
+            onChange={(e) => setAge(e.target.value)}
           />
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">BIOLOGICAL SEX</label>
+            <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider font-display">BIOLOGICAL SEX</label>
             <div className="relative">
               <select
                 value={gender}
                 onChange={(e) => setGender(e.target.value as Gender)}
-                className="w-full h-11 pl-3.5 pr-10 rounded-lg bg-[#070b24]/90 border border-white/20 text-white text-sm font-medium focus:outline-none focus:border-[#5865f2] focus:ring-2 focus:ring-[#5865f2]/25 appearance-none cursor-pointer hover:border-white/30 transition-all shadow-inner"
+                className="w-full h-11 pl-4 pr-10 rounded-xl bg-[#0c1033]/90 hover:bg-[#0f1544]/90 focus:bg-[#11174d] border border-white/15 hover:border-white/30 text-white text-sm font-medium focus:outline-none focus:border-[#5865f2] focus:ring-2 focus:ring-[#5865f2]/40 appearance-none cursor-pointer transition-all duration-200 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.03)] focus:shadow-[0_0_20px_rgba(88,101,242,0.3)]"
               >
                 <option value="male" className="bg-[#0b0f33] text-white">Male</option>
                 <option value="female" className="bg-[#0b0f33] text-white">Female</option>
@@ -90,7 +94,7 @@ export function CalorieCalculatorModal({ isOpen, onClose }: CalorieCalculatorMod
             max={250}
             step={0.5}
             value={weightKg}
-            onChange={(e) => setWeightKg(parseFloat(e.target.value) || 75)}
+            onChange={(e) => setWeightKg(e.target.value)}
           />
 
           <Input
@@ -99,18 +103,18 @@ export function CalorieCalculatorModal({ isOpen, onClose }: CalorieCalculatorMod
             min={120}
             max={230}
             value={heightCm}
-            onChange={(e) => setHeightCm(parseInt(e.target.value) || 175)}
+            onChange={(e) => setHeightCm(e.target.value)}
           />
         </div>
 
         {/* Activity Level */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">ACTIVITY COEFFICIENT</label>
+          <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider font-display">ACTIVITY COEFFICIENT</label>
           <div className="relative">
             <select
               value={activity}
               onChange={(e) => setActivity(e.target.value as ActivityLevel)}
-              className="w-full h-11 pl-3.5 pr-10 rounded-lg bg-[#070b24]/90 border border-white/20 text-white text-sm font-medium focus:outline-none focus:border-[#5865f2] focus:ring-2 focus:ring-[#5865f2]/25 appearance-none cursor-pointer hover:border-white/30 transition-all shadow-inner"
+              className="w-full h-11 pl-4 pr-10 rounded-xl bg-[#0c1033]/90 hover:bg-[#0f1544]/90 focus:bg-[#11174d] border border-white/15 hover:border-white/30 text-white text-sm font-medium focus:outline-none focus:border-[#5865f2] focus:ring-2 focus:ring-[#5865f2]/40 appearance-none cursor-pointer transition-all duration-200 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.03)] focus:shadow-[0_0_20px_rgba(88,101,242,0.3)]"
             >
               <option value="sedentary" className="bg-[#0b0f33] text-white">Sedentary (Desk Job, Minimal Training)</option>
               <option value="light" className="bg-[#0b0f33] text-white">Lightly Active (1-3 Workouts/Week)</option>
