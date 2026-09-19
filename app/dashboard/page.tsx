@@ -123,7 +123,7 @@ export default function DashboardPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-8 space-y-8">
         {/* Welcome & Streak Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-indigo border border-white/15 p-6 sm:p-8 rounded-xl shadow-[0_3px_68px_rgba(69,42,124,0.25)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-indigo border border-white/15 p-5 sm:p-8 rounded-xl shadow-[0_3px_68px_rgba(69,42,124,0.25)]">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#35ed7e]">
@@ -138,15 +138,15 @@ export default function DashboardPage() {
                 })}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase font-display">
+            <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight uppercase font-display">
               WELCOME BACK, {profile.name}
             </h1>
           </div>
 
           {/* Streak & Quick Action Buttons */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-sm bg-[#00b0f4]/20 border border-[#00b0f4]/30 text-[#ffffff] text-xs font-bold font-mono shadow-[0_0_12px_rgba(0,176,244,0.3)]">
-              <Fire size={18} weight="fill" className="text-[#00b0f4]" />
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg bg-[#00b0f4]/20 border border-[#00b0f4]/30 text-[#ffffff] text-xs font-bold font-mono shadow-[0_0_12px_rgba(0,176,244,0.3)] shrink-0">
+              <Fire size={16} weight="fill" className="text-[#00b0f4]" />
               <span>{profile.streakDays} DAY STREAK</span>
             </div>
 
@@ -154,15 +154,15 @@ export default function DashboardPage() {
               size="sm"
               variant="outline"
               onClick={() => setQuickWeightOpen(true)}
-              className="gap-1.5"
+              className="gap-1.5 text-xs h-8 sm:h-9 shrink-0"
             >
-              <TrendUp size={16} weight="bold" />
+              <TrendUp size={15} weight="bold" />
               <span>LOG WEIGHT</span>
             </Button>
 
-            <Link href="/tracker">
-              <Button size="sm" variant="green" className="gap-1.5">
-                <Plus size={16} weight="bold" />
+            <Link href="/tracker" className="shrink-0">
+              <Button size="sm" variant="green" className="gap-1.5 text-xs h-8 sm:h-9">
+                <Plus size={15} weight="bold" />
                 <span>ADD FOOD</span>
               </Button>
             </Link>
