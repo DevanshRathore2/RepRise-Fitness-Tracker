@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { RepRiseStorage } from "@/lib/storage";
 import { FoodItem, MealEntry, MealType } from "@/types/fitness";
+import BasicDatePicker from "@/components/ui/calendar-1";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -41,6 +42,7 @@ function TrackerContent() {
   const initialDate = paramDate && /^\d{4}-\d{2}-\d{2}$/.test(paramDate) ? paramDate : todayStr;
 
   const [selectedDate, setSelectedDate] = useState<string>(initialDate);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [foods, setFoods] = useState<FoodItem[]>([]);
   const [selectedMealType, setSelectedMealType] = useState<MealType>(initialMeal);
   const [searchQuery, setSearchQuery] = useState("");
@@ -232,7 +234,7 @@ function TrackerContent() {
           </div>
 
           {/* Date Picker & Controls */}
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto relative">
             <div className="flex items-center gap-1 bg-surface-onyx p-1 rounded-sm border border-white/10">
               <button
                 type="button"
@@ -243,13 +245,15 @@ function TrackerContent() {
                 <CaretLeft size={16} weight="bold" />
               </button>
 
-              <input
-                type="date"
-                aria-label="Select Food Diary Date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-transparent text-xs font-mono font-bold text-white px-2 py-1 focus:outline-none cursor-pointer"
-              />
+              <button
+                type="button"
+                onClick={() => setShowCalendar(!showCalendar)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xs bg-[#0c1033] hover:bg-[#121844] text-xs font-mono font-bold text-white transition-all cursor-pointer border border-white/15"
+                title="Open interactive calendar"
+              >
+                <Calendar size={14} className="text-[#00b0f4]" weight="bold" />
+                <span>{selectedDate}</span>
+              </button>
 
               <button
                 type="button"
@@ -261,6 +265,24 @@ function TrackerContent() {
               </button>
             </div>
 
+            {showCalendar && (
+              <div className="absolute right-0 top-full mt-2 z-50">
+                <div
+                  className="fixed inset-0 z-40 bg-black/20"
+                  onClick={() => setShowCalendar(false)}
+                />
+                <div className="relative z-50">
+                  <BasicDatePicker
+                    value={selectedDate}
+                    onChange={(newDate) => {
+                      setSelectedDate(newDate);
+                      setShowCalendar(false);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
             {selectedDate !== todayStr && (
               <Button
                 size="sm"
@@ -268,7 +290,7 @@ function TrackerContent() {
                 onClick={handleToday}
                 className="text-xs font-bold font-mono text-[#00b0f4] border-[#00b0f4]/40 hover:border-[#00b0f4]"
               >
-                <span>JUMP TO TODAY</span>
+                <span>TODAY</span>
               </Button>
             )}
           </div>

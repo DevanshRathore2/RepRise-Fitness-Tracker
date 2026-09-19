@@ -22,6 +22,7 @@ import { Modal } from "@/components/ui/Modal";
 import { RepRiseStorage } from "@/lib/storage";
 import { PersonalRecord, WorkoutSession } from "@/types/fitness";
 import { PREMADE_SPLITS } from "@/lib/routines";
+import BasicDatePicker from "@/components/ui/calendar-1";
 
 export default function WorkoutsPage() {
   const todayStr = new Date().toISOString().split("T")[0];
@@ -31,10 +32,12 @@ export default function WorkoutsPage() {
   // Date filtering state for session history
   const [filterMode, setFilterMode] = useState<"all" | "date">("all");
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
+  const [showHistoryCalendar, setShowHistoryCalendar] = useState(false);
 
   // Premade Routines state
   const [activeSplitId, setActiveSplitId] = useState<string>("ppl");
   const [activeDayId, setActiveDayId] = useState<string>("ppl-push");
+  const [showRoutineCalendar, setShowRoutineCalendar] = useState(false);
   const [tickedExerciseIds, setTickedExerciseIds] = useState<Record<string, boolean>>(() => {
     const initialTicks: Record<string, boolean> = {};
     if (PREMADE_SPLITS[0]?.days[0]?.exercises) {
@@ -576,17 +579,37 @@ export default function WorkoutsPage() {
           {/* Log Workout Action Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[#070b24]/90 border border-white/15 shadow-inner">
             <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 relative">
                 <Calendar size={18} className="text-[#00b0f4]" />
                 <span className="text-xs text-zinc-300 font-bold uppercase font-display">Log Date:</span>
-                <input
-                  type="date"
-                  aria-label="Routine Workout Date"
-                  value={routineLogDate}
-                  max={todayStr}
-                  onChange={(e) => setRoutineLogDate(e.target.value)}
-                  className="h-9 px-2.5 rounded-sm bg-surface-onyx border border-white/15 text-white text-xs font-mono font-bold focus:outline-none focus:border-[#00b0f4] cursor-pointer"
-                />
+                <button
+                  type="button"
+                  onClick={() => setShowRoutineCalendar(!showRoutineCalendar)}
+                  className="h-9 px-3 rounded-sm bg-surface-onyx hover:bg-white/10 border border-white/15 text-white text-xs font-mono font-bold focus:outline-none focus:border-[#00b0f4] cursor-pointer flex items-center gap-1.5 transition-colors"
+                >
+                  <span>{routineLogDate}</span>
+                  {routineLogDate === todayStr && (
+                    <span className="text-[9px] px-1 rounded-xs bg-[#35ed7e]/20 text-[#35ed7e]">TODAY</span>
+                  )}
+                </button>
+
+                {showRoutineCalendar && (
+                  <div className="absolute left-0 bottom-full mb-2 z-50">
+                    <div
+                      className="fixed inset-0 z-40 bg-black/20"
+                      onClick={() => setShowRoutineCalendar(false)}
+                    />
+                    <div className="relative z-50">
+                      <BasicDatePicker
+                        value={routineLogDate}
+                        onChange={(newDate) => {
+                          setRoutineLogDate(newDate);
+                          setShowRoutineCalendar(false);
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -706,7 +729,7 @@ export default function WorkoutsPage() {
               </div>
 
               {/* Date navigator (active when By Date is selected or anytime to view days) */}
-              <div className="flex items-center gap-1.5 p-1 rounded-sm bg-surface-onyx border border-white/10">
+              <div className="flex items-center gap-1.5 p-1 rounded-sm bg-surface-onyx border border-white/10 relative">
                 <button
                   type="button"
                   onClick={() => {
@@ -719,16 +742,37 @@ export default function WorkoutsPage() {
                   <CaretLeft size={16} weight="bold" />
                 </button>
 
-                <input
-                  type="date"
-                  aria-label="Filter workout date"
-                  value={selectedDate}
-                  onChange={(e) => {
-                    setSelectedDate(e.target.value);
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowHistoryCalendar(!showHistoryCalendar);
                     setFilterMode("date");
                   }}
-                  className="bg-transparent text-xs font-mono font-bold text-white px-2 py-0.5 focus:outline-none cursor-pointer"
-                />
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-xs bg-[#0c1033] hover:bg-[#121844] text-xs font-mono font-bold text-white transition-all cursor-pointer border border-white/15"
+                  title="Open interactive calendar"
+                >
+                  <Calendar size={13} className="text-[#00b0f4]" weight="bold" />
+                  <span>{selectedDate}</span>
+                </button>
+
+                {showHistoryCalendar && (
+                  <div className="absolute right-0 top-full mt-2 z-50">
+                    <div
+                      className="fixed inset-0 z-40 bg-black/20"
+                      onClick={() => setShowHistoryCalendar(false)}
+                    />
+                    <div className="relative z-50">
+                      <BasicDatePicker
+                        value={selectedDate}
+                        onChange={(newDate) => {
+                          setSelectedDate(newDate);
+                          setFilterMode("date");
+                          setShowHistoryCalendar(false);
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <button
                   type="button"
