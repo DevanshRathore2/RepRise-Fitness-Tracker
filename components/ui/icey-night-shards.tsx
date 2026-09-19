@@ -420,13 +420,15 @@ export function ShaderBackground({ className }: { className?: string }) {
     const start = performance.now()
     const timeAnimated = Math.abs(UNIFORMS.timeScale) > 0.0001
 
+    let needsResize = true
     const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const isMobile = typeof window !== "undefined" && (window.innerWidth < 768 || "ontouchstart" in window)
+      const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5)
       const rawWidth = Math.max(1, Math.round(bounds.width * dpr))
       const rawHeight = Math.max(1, Math.round(bounds.height * dpr))
       const pixelScale = Math.min(
         1,
-        Math.sqrt(2_000_000 / Math.max(1, rawWidth * rawHeight)),
+        Math.sqrt((isMobile ? 800_000 : 1_800_000) / Math.max(1, rawWidth * rawHeight)),
       )
       const width = Math.max(1, Math.round(rawWidth * pixelScale))
       const height = Math.max(1, Math.round(rawHeight * pixelScale))
@@ -435,6 +437,7 @@ export function ShaderBackground({ className }: { className?: string }) {
         canvas.height = height
         gl.viewport(0, 0, width, height)
       }
+      needsResize = false
     }
 
     function requestRender() {
@@ -471,7 +474,6 @@ export function ShaderBackground({ className }: { className?: string }) {
       pointerKnown = true
       pointerClientX = event.clientX
       pointerClientY = event.clientY
-      bounds = canvas.getBoundingClientRect()
       updatePointerTarget()
     }
     const onPointerLeave = () => {
@@ -481,15 +483,15 @@ export function ShaderBackground({ className }: { className?: string }) {
     }
     const updateLayout = () => {
       bounds = canvas.getBoundingClientRect()
+      needsResize = true
       resizeCanvas()
       updatePointerTarget()
       requestRender()
     }
-    window.addEventListener("resize", updateLayout)
-    if (UNIFORMS.cursorEnabled) {
+    window.addEventListener("resize", updateLayout, { passive: true })
+    if (UNIFORMS.cursorEnabled && !(typeof window !== "undefined" && "ontouchstart" in window)) {
       window.addEventListener("pointermove", onPointerMove, { passive: true })
       window.addEventListener("pointercancel", onPointerLeave)
-      window.addEventListener("scroll", updateLayout, true)
       window.addEventListener("blur", onPointerLeave)
       document.documentElement.addEventListener("pointerleave", onPointerLeave)
     }
@@ -526,7 +528,9 @@ export function ShaderBackground({ className }: { className?: string }) {
       mouseX += (targetX - mouseX) * follow
       mouseY += (targetY - mouseY) * follow
       cursorPresence += (targetPresence - cursorPresence) * follow
-      resizeCanvas()
+      if (needsResize) {
+        resizeCanvas()
+      }
       const width = canvas.width
       const height = canvas.height
       gl.uniform4f(

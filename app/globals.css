@@ -52,6 +52,13 @@ body {
   animation: discordMeshPulse 16s ease-in-out infinite alternate;
 }
 
+@media (max-width: 768px) {
+  .discord-mesh-canvas {
+    animation: none !important;
+    background-size: 100% 100% !important;
+  }
+}
+
 /* Discord Glass & Surface Panels */
 .glass-panel {
   background: rgba(30, 35, 83, 0.75);
@@ -67,6 +74,20 @@ body {
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 768px) {
+  .glass-panel {
+    background: rgba(22, 27, 68, 0.94) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  .glass-pill {
+    background: rgba(12, 15, 60, 0.96) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
 }
 
 @media (prefers-reduced-transparency: reduce) {
@@ -338,18 +359,30 @@ h1, h2, h3, h4 {
   display: flex !important;
   animation: marquee-scroll var(--duration, 30s) linear infinite !important;
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .animate-marquee-reverse {
   display: flex !important;
   animation: marquee-scroll var(--duration, 30s) linear infinite reverse !important;
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .animate-marquee-vertical {
   display: flex !important;
   animation: marquee-scroll-vertical var(--duration, 30s) linear infinite !important;
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .group:hover .marquee-pause-on-hover,
