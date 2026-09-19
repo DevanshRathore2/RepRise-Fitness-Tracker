@@ -18,6 +18,7 @@ import { Modal } from "@/components/ui/Modal";
 import { RepRiseStorage } from "@/lib/storage";
 import { FoodItem, MealEntry, MealType } from "@/types/fitness";
 import BasicDatePicker from "@/components/ui/calendar-1";
+import { DateNavigator } from "@/components/ui/DateNavigator";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -233,68 +234,12 @@ function TrackerContent() {
             </div>
           </div>
 
-          {/* Date Picker & Controls */}
-          <div className="flex items-center gap-2 self-start sm:self-auto relative">
-            <div className="flex items-center gap-1 bg-surface-onyx p-1 rounded-sm border border-white/10">
-              <button
-                type="button"
-                onClick={handlePrevDay}
-                className="p-1.5 rounded-xs text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                title="Previous Day"
-              >
-                <CaretLeft size={16} weight="bold" />
-              </button>
-
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setShowCalendar(!showCalendar)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-xs bg-[#0c1033] hover:bg-[#121844] text-xs font-mono font-bold text-white transition-all cursor-pointer border border-white/15"
-                  title="Open interactive calendar"
-                >
-                  <Calendar size={14} className="text-[#00b0f4]" weight="bold" />
-                  <span>{selectedDate}</span>
-                </button>
-
-                {showCalendar && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50">
-                    <div
-                      className="fixed inset-0 z-40 bg-black/20"
-                      onClick={() => setShowCalendar(false)}
-                    />
-                    <div className="relative z-50">
-                      <BasicDatePicker
-                        value={selectedDate}
-                        onChange={(newDate) => {
-                          setSelectedDate(newDate);
-                          setShowCalendar(false);
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={handleNextDay}
-                className="p-1.5 rounded-xs text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                title="Next Day"
-              >
-                <CaretRight size={16} weight="bold" />
-              </button>
-            </div>
-
-            {selectedDate !== todayStr && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleToday}
-                className="text-xs font-bold font-mono text-[#00b0f4] border-[#00b0f4]/40 hover:border-[#00b0f4]"
-              >
-                <span>TODAY</span>
-              </Button>
-            )}
+          {/* Date Navigator */}
+          <div className="self-start sm:self-auto">
+            <DateNavigator
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+            />
           </div>
         </div>
 

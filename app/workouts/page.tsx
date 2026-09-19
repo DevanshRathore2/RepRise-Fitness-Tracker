@@ -23,6 +23,7 @@ import { RepRiseStorage } from "@/lib/storage";
 import { PersonalRecord, WorkoutSession } from "@/types/fitness";
 import { PREMADE_SPLITS } from "@/lib/routines";
 import BasicDatePicker, { DatePickerField } from "@/components/ui/calendar-1";
+import { DateNavigator } from "@/components/ui/DateNavigator";
 
 export default function WorkoutsPage() {
   const todayStr = new Date().toISOString().split("T")[0];
@@ -729,78 +730,13 @@ export default function WorkoutsPage() {
               </div>
 
               {/* Date navigator (active when By Date is selected or anytime to view days) */}
-              <div className="flex items-center gap-1.5 p-1 rounded-sm bg-surface-onyx border border-white/10 relative">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFilterMode("date");
-                    handlePrevDay();
-                  }}
-                  className="p-1.5 rounded-xs text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                  title="Previous Day"
-                >
-                  <CaretLeft size={16} weight="bold" />
-                </button>
-
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowHistoryCalendar(!showHistoryCalendar);
-                      setFilterMode("date");
-                    }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-xs bg-[#0c1033] hover:bg-[#121844] text-xs font-mono font-bold text-white transition-all cursor-pointer border border-white/15"
-                    title="Open interactive calendar"
-                  >
-                    <Calendar size={13} className="text-[#00b0f4]" weight="bold" />
-                    <span>{selectedDate}</span>
-                  </button>
-
-                  {showHistoryCalendar && (
-                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50">
-                      <div
-                        className="fixed inset-0 z-40 bg-black/20"
-                        onClick={() => setShowHistoryCalendar(false)}
-                      />
-                      <div className="relative z-50">
-                        <BasicDatePicker
-                          value={selectedDate}
-                          onChange={(newDate) => {
-                            setSelectedDate(newDate);
-                            setFilterMode("date");
-                            setShowHistoryCalendar(false);
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFilterMode("date");
-                    handleNextDay();
-                  }}
-                  className="p-1.5 rounded-xs text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                  title="Next Day"
-                >
-                  <CaretRight size={16} weight="bold" />
-                </button>
-
-                {selectedDate !== todayStr && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedDate(todayStr);
-                      setFilterMode("date");
-                    }}
-                    className="px-2 py-1 rounded-xs bg-[#5865f2]/20 border border-[#5865f2]/40 text-[#00b0f4] text-[10px] font-mono font-bold hover:bg-[#5865f2]/30 cursor-pointer transition-colors"
-                  >
-                    TODAY
-                  </button>
-                )}
-              </div>
+              <DateNavigator
+                selectedDate={selectedDate}
+                onDateChange={(newDate) => {
+                  setSelectedDate(newDate);
+                  setFilterMode("date");
+                }}
+              />
             </div>
           </div>
 

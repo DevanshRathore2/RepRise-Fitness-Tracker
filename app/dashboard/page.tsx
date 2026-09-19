@@ -21,6 +21,7 @@ import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { RepRiseStorage } from "@/lib/storage";
 import { MealEntry, MealType, UserProfile } from "@/types/fitness";
 import BasicDatePicker, { DatePickerField } from "@/components/ui/calendar-1";
+import { DateNavigator } from "@/components/ui/DateNavigator";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -276,69 +277,14 @@ export default function DashboardPage() {
 
             {/* Date Navigator & Tracker Link */}
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-1 bg-surface-onyx p-1 rounded-sm border border-white/10">
-                <button
-                  type="button"
-                  onClick={handlePrevDay}
-                  className="p-1.5 rounded-xs text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                  title="Previous Day"
-                >
-                  <CaretLeft size={16} weight="bold" />
-                </button>
-
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setShowCalendar(!showCalendar)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-xs bg-[#0c1033] hover:bg-[#121844] text-xs font-mono font-bold text-white transition-all cursor-pointer border border-white/15"
-                    title="Open interactive calendar"
-                  >
-                    <Calendar size={13} className="text-[#00b0f4]" weight="bold" />
-                    <span>{selectedDate}</span>
-                  </button>
-
-                  {showCalendar && (
-                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50">
-                      <div
-                        className="fixed inset-0 z-40 bg-black/20"
-                        onClick={() => setShowCalendar(false)}
-                      />
-                      <div className="relative z-50">
-                        <BasicDatePicker
-                          value={selectedDate}
-                          onChange={(newDate) => {
-                            setSelectedDate(newDate);
-                            setShowCalendar(false);
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleNextDay}
-                  className="p-1.5 rounded-xs text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                  title="Next Day"
-                >
-                  <CaretRight size={16} weight="bold" />
-                </button>
-              </div>
-
-              {selectedDate !== todayStr && (
-                <button
-                  type="button"
-                  onClick={handleToday}
-                  className="px-2.5 py-1.5 rounded-xs bg-[#5865f2]/20 border border-[#5865f2]/40 text-[#00b0f4] text-xs font-mono font-bold hover:bg-[#5865f2]/30 cursor-pointer transition-colors"
-                >
-                  TODAY
-                </button>
-              )}
+              <DateNavigator
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+              />
 
               <Link
                 href={`/tracker?date=${selectedDate}`}
-                className="text-xs font-bold text-[#5865f2] hover:text-[#7983f5] transition-colors flex items-center gap-1"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-bold text-[#5865f2] hover:text-white bg-[#5865f2]/10 hover:bg-[#5865f2]/20 border border-[#5865f2]/30 hover:border-[#5865f2]/60 transition-all duration-150 active:scale-95 shadow-[0_0_12px_rgba(88,101,242,0.15)]"
               >
                 <span>SEARCH FOOD LIBRARY</span>
                 <span>&rarr;</span>
