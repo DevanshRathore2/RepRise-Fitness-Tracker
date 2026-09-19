@@ -5,7 +5,6 @@ import { ArrowRight, Check } from "@phosphor-icons/react";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { ShinyButton } from "@/components/ui/shiny-button";
 import { calculateNutritionTargets } from "@/lib/calculations";
 import { RepRiseStorage } from "@/lib/storage";
 import { ActivityLevel, FitnessGoal, Gender } from "@/types/fitness";
@@ -275,10 +274,15 @@ export function OnboardingModal({ isOpen, onClose, onCompleted }: OnboardingModa
               <Button size="md" variant="ghost" onClick={() => setStep(2)}>
                 BACK
               </Button>
-              <ShinyButton onClick={handleSave} className="!py-2.5 !px-6 text-xs font-bold uppercase tracking-wider">
+              <Button
+                size="md"
+                variant="primary"
+                onClick={handleSave}
+                className="gap-2 font-bold uppercase tracking-wider text-xs px-6 py-2.5 rounded-lg shadow-[0_4px_20px_rgba(88,101,242,0.35)] hover:shadow-[0_4px_24px_rgba(88,101,242,0.55)] cursor-pointer transition-all"
+              >
                 <Check size={16} weight="bold" />
                 <span>SAVE PROFILE & ACTIVATE</span>
-              </ShinyButton>
+              </Button>
             </div>
           </div>
         )}
