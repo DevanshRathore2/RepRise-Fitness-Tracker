@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Barbell, List, X, ArrowRight, Sparkle, Calculator, ForkKnife, Tag, Users, EnvelopeSimple } from "@phosphor-icons/react";
+import { Barbell, List, X, ArrowRight } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import {
@@ -42,58 +42,42 @@ export function Navbar({ onOpenCalculator }: NavbarProps) {
 
         {/* Desktop Navigation Links with NavigationMenu */}
         <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="space-x-7">
+          <NavigationMenuList className="space-x-8">
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={navLinkClass}>
-                <a href="#features" className="flex items-center gap-1.5">
-                  <Sparkle size={16} className="text-[#00b0f4]" />
-                  <span>Features</span>
-                </a>
+                <a href="#features">Features</a>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={navLinkClass}>
-                <button onClick={onOpenCalculator} className="flex items-center gap-1.5 cursor-pointer">
-                  <Calculator size={16} className="text-[#00b0f4]" />
-                  <span>Calculator</span>
+                <button onClick={onOpenCalculator} className="cursor-pointer">
+                  Calculator
                 </button>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={navLinkClass}>
-                <a href="#features" className="flex items-center gap-1.5">
-                  <ForkKnife size={16} className="text-[#00b0f4]" />
-                  <span>Nutrition</span>
-                </a>
+                <a href="#features">Nutrition</a>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={navLinkClass}>
-                <a href="#pricing" className="flex items-center gap-1.5">
-                  <Tag size={16} className="text-[#00b0f4]" />
-                  <span>Pricing</span>
-                </a>
+                <a href="#pricing">Pricing</a>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={navLinkClass}>
-                <a href="#testimonials" className="flex items-center gap-1.5">
-                  <Users size={16} className="text-[#00b0f4]" />
-                  <span>Athletes</span>
-                </a>
+                <a href="#testimonials">Athletes</a>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={navLinkClass}>
-                <a href="#contact" className="flex items-center gap-1.5">
-                  <EnvelopeSimple size={16} className="text-[#00b0f4]" />
-                  <span>Contact</span>
-                </a>
+                <a href="#contact">Contact</a>
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>

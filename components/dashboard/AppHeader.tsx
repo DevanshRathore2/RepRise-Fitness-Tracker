@@ -70,12 +70,7 @@ export function AppHeader({ onOpenOnboarding }: AppHeaderProps) {
                         "hover:bg-transparent focus:bg-transparent active:bg-transparent"
                       )}
                     >
-                      <Link className="flex flex-row items-center gap-2" href={item.href}>
-                        <Icon
-                          size={16}
-                          weight={isActive ? "fill" : "bold"}
-                          className={isActive ? "text-[#00b0f4]" : "text-zinc-400 group-hover:text-white transition-colors"}
-                        />
+                      <Link href={item.href}>
                         <span>{item.label}</span>
                       </Link>
                     </NavigationMenuLink>
