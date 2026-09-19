@@ -2,9 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Barbell, List, X, ArrowRight } from "@phosphor-icons/react";
+import { Barbell, List, X, ArrowRight, Sparkle, Calculator, ForkKnife, Tag, Users, EnvelopeSimple } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/Button";
-import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
+import { cn } from "@/lib/utils";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
 
 interface NavbarProps {
   onOpenCalculator?: () => void;
@@ -13,13 +19,13 @@ interface NavbarProps {
 export function Navbar({ onOpenCalculator }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navLinks = [
-    { label: "Features", href: "#features" },
-    { label: "Nutrition", href: "#features" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Athletes", href: "#testimonials" },
-    { label: "Contact", href: "#contact" },
-  ];
+  const navLinkClass = cn(
+    "group relative inline-flex h-9 w-max items-center justify-center px-1.5 py-2 font-medium text-sm transition-colors text-zinc-300 hover:text-white cursor-pointer",
+    "before:absolute before:inset-x-0 before:bottom-0 before:h-[2px] before:scale-x-0 before:bg-[#00b0f4] before:transition-transform before:duration-300",
+    "hover:before:scale-x-100",
+    "focus:outline-hidden focus:before:scale-x-100",
+    "hover:bg-transparent focus:bg-transparent active:bg-transparent"
+  );
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 backdrop-blur-md bg-canvas/80 border-b border-white/10">
@@ -34,54 +40,64 @@ export function Navbar({ onOpenCalculator }: NavbarProps) {
           </span>
         </Link>
 
-        {/* Desktop Navigation Links with RandomLetterSwap */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-zinc-300">
-          <a href="#features" className="hover:text-white transition-colors duration-200">
-            <RandomLetterSwap
-              label="Features"
-              staggerDuration={0.025}
-              transition={{ duration: 0.6, type: "spring" }}
-            />
-          </a>
-          <button
-            onClick={onOpenCalculator}
-            className="hover:text-white transition-colors duration-200 cursor-pointer"
-          >
-            <RandomLetterSwap
-              label="Calculator"
-              staggerDuration={0.025}
-              transition={{ duration: 0.6, type: "spring" }}
-            />
-          </button>
-          <a href="#features" className="hover:text-white transition-colors duration-200">
-            <RandomLetterSwap
-              label="Nutrition"
-              staggerDuration={0.025}
-              transition={{ duration: 0.6, type: "spring" }}
-            />
-          </a>
-          <a href="#pricing" className="hover:text-white transition-colors duration-200">
-            <RandomLetterSwap
-              label="Pricing"
-              staggerDuration={0.025}
-              transition={{ duration: 0.6, type: "spring" }}
-            />
-          </a>
-          <a href="#testimonials" className="hover:text-white transition-colors duration-200">
-            <RandomLetterSwap
-              label="Athletes"
-              staggerDuration={0.025}
-              transition={{ duration: 0.6, type: "spring" }}
-            />
-          </a>
-          <a href="#contact" className="hover:text-white transition-colors duration-200">
-            <RandomLetterSwap
-              label="Contact"
-              staggerDuration={0.025}
-              transition={{ duration: 0.6, type: "spring" }}
-            />
-          </a>
-        </nav>
+        {/* Desktop Navigation Links with NavigationMenu */}
+        <NavigationMenu className="hidden md:flex">
+          <NavigationMenuList className="space-x-7">
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={navLinkClass}>
+                <a href="#features" className="flex items-center gap-1.5">
+                  <Sparkle size={16} className="text-[#00b0f4]" />
+                  <span>Features</span>
+                </a>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={navLinkClass}>
+                <button onClick={onOpenCalculator} className="flex items-center gap-1.5 cursor-pointer">
+                  <Calculator size={16} className="text-[#00b0f4]" />
+                  <span>Calculator</span>
+                </button>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={navLinkClass}>
+                <a href="#features" className="flex items-center gap-1.5">
+                  <ForkKnife size={16} className="text-[#00b0f4]" />
+                  <span>Nutrition</span>
+                </a>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={navLinkClass}>
+                <a href="#pricing" className="flex items-center gap-1.5">
+                  <Tag size={16} className="text-[#00b0f4]" />
+                  <span>Pricing</span>
+                </a>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={navLinkClass}>
+                <a href="#testimonials" className="flex items-center gap-1.5">
+                  <Users size={16} className="text-[#00b0f4]" />
+                  <span>Athletes</span>
+                </a>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={navLinkClass}>
+                <a href="#contact" className="flex items-center gap-1.5">
+                  <EnvelopeSimple size={16} className="text-[#00b0f4]" />
+                  <span>Contact</span>
+                </a>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
 
         {/* Action CTAs */}
         <div className="hidden md:flex items-center gap-3">

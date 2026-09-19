@@ -12,7 +12,13 @@ import {
   SquaresFour,
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/Button";
-import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
+import { cn } from "@/lib/utils";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
 
 interface AppHeaderProps {
   onOpenOnboarding?: () => void;
@@ -42,30 +48,42 @@ export function AppHeader({ onOpenOnboarding }: AppHeaderProps) {
             </span>
           </Link>
 
-          {/* Desktop Nav Items with RandomLetterSwap */}
-          <nav className="hidden md:flex items-center gap-1.5">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-3.5 py-1.5 rounded-sm text-xs font-bold flex items-center gap-2 transition-all ${isActive
-                      ? "bg-[#5865f2] text-white shadow-[0_0_12px_rgba(88,101,242,0.4)]"
-                      : "text-zinc-300 hover:text-white hover:bg-white/10"
-                    }`}
-                >
-                  <Icon size={16} weight={isActive ? "fill" : "bold"} />
-                  <RandomLetterSwap
-                    label={item.label}
-                    staggerDuration={0.02}
-                    transition={{ duration: 0.5, type: "spring" }}
-                  />
-                </Link>
-              );
-            })}
-          </nav>
+          {/* Desktop Nav Items with NavigationMenu styling */}
+          <NavigationMenu className="hidden md:flex">
+            <NavigationMenuList className="space-x-4">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+                return (
+                  <NavigationMenuItem key={item.href}>
+                    <NavigationMenuLink
+                      active={isActive}
+                      asChild
+                      className={cn(
+                        "group relative inline-flex h-9 w-max items-center justify-center px-2.5 py-1.5 font-bold text-xs transition-colors cursor-pointer",
+                        "before:absolute before:inset-x-0 before:bottom-0 before:h-[2px] before:scale-x-0 before:bg-[#00b0f4] before:transition-transform before:duration-300",
+                        "hover:text-white hover:before:scale-x-100",
+                        "focus:outline-hidden focus:before:scale-x-100",
+                        isActive
+                          ? "text-white before:scale-x-100 font-extrabold"
+                          : "text-zinc-300 before:scale-x-0",
+                        "hover:bg-transparent focus:bg-transparent active:bg-transparent"
+                      )}
+                    >
+                      <Link className="flex flex-row items-center gap-2" href={item.href}>
+                        <Icon
+                          size={16}
+                          weight={isActive ? "fill" : "bold"}
+                          className={isActive ? "text-[#00b0f4]" : "text-zinc-400 group-hover:text-white transition-colors"}
+                        />
+                        <span>{item.label}</span>
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                );
+              })}
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
 
         {/* Right: Quick actions & Recalibrate */}
