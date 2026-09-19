@@ -5,11 +5,13 @@ import { useSearchParams } from "next/navigation";
 import {
   MagnifyingGlass,
   Plus,
+  Minus,
   Trash,
   Check,
   Calendar,
   CaretLeft,
   CaretRight,
+  Sparkle,
 } from "@phosphor-icons/react";
 import { AppHeader } from "@/components/dashboard/AppHeader";
 import { Button } from "@/components/ui/Button";
@@ -19,6 +21,7 @@ import { RepRiseStorage } from "@/lib/storage";
 import { FoodItem, MealEntry, MealType } from "@/types/fitness";
 import BasicDatePicker from "@/components/ui/calendar-1";
 import { DateNavigator } from "@/components/ui/DateNavigator";
+import { cn } from "@/lib/utils";
 
 function formatDisplayDate(dateStr: string): string {
   try {
@@ -48,7 +51,10 @@ function TrackerContent() {
   const [selectedMealType, setSelectedMealType] = useState<MealType>(initialMeal);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [servingMultiplier, setServingMultiplier] = useState<Record<string, number>>({});
+  // Serving unit selection per food: "default" | "1g"
+  const [servingUnits, setServingUnits] = useState<Record<string, "default" | "1g">>({});
+  // Raw string input for smooth, glitch-free typing (allows backspace, decimals, etc.)
+  const [servingInputs, setServingInputs] = useState<Record<string, string>>({});
   const [todayMeals, setTodayMeals] = useState<MealEntry[]>([]);
 
   // Custom food modal
@@ -112,30 +118,105 @@ function TrackerContent() {
     return matchesQuery && matchesCategory;
   });
 
-  const getServings = (id: string) => servingMultiplier[id] || 1;
+  const getSelectedUnit = (foodId: string): "default" | "1g" => {
+    return servingUnits[foodId] || "default";
+  };
 
-  const setServings = (id: string, val: number) => {
-    setServingMultiplier((prev) => ({ ...prev, [id]: Math.max(0.25, Number(val)) }));
+  const getServingInputStr = (food: FoodItem): string => {
+    if (servingInputs[food.id] !== undefined) {
+      return servingInputs[food.id];
+    }
+    const unit = getSelectedUnit(food.id);
+    return unit === "1g" ? String(food.servingAmount || 100) : "1";
+  };
+
+  const handleUnitToggle = (food: FoodItem, unit: "default" | "1g") => {
+    setServingUnits((prev) => ({ ...prev, [food.id]: unit }));
+    // When switching unit, pre-populate intuitive default
+    setServingInputs((prev) => ({
+      ...prev,
+      [food.id]: unit === "1g" ? String(food.servingAmount || 100) : "1",
+    }));
+  };
+
+  const handleInputChange = (foodId: string, value: string) => {
+    // Allow empty string, numbers, and decimals freely while typing
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+      setServingInputs((prev) => ({ ...prev, [foodId]: value }));
+    }
+  };
+
+  const handleInputBlur = (food: FoodItem) => {
+    const current = servingInputs[food.id];
+    if (current === undefined || current === "" || parseFloat(current) <= 0) {
+      const unit = getSelectedUnit(food.id);
+      const fallback = unit === "1g" ? String(food.servingAmount || 100) : "1";
+      setServingInputs((prev) => ({ ...prev, [food.id]: fallback }));
+    }
+  };
+
+  const handleStepServing = (food: FoodItem, delta: number) => {
+    const unit = getSelectedUnit(food.id);
+    const currentStr = getServingInputStr(food);
+    const currentNum = parseFloat(currentStr) || (unit === "1g" ? (food.servingAmount || 100) : 1);
+
+    if (unit === "1g") {
+      const step = delta > 0 ? 10 : -10;
+      const next = Math.max(1, Math.round(currentNum + step));
+      setServingInputs((prev) => ({ ...prev, [food.id]: String(next) }));
+    } else {
+      const step = delta > 0 ? 0.5 : -0.5;
+      const next = Math.max(0.25, Number((currentNum + step).toFixed(2)));
+      setServingInputs((prev) => ({ ...prev, [food.id]: String(next) }));
+    }
+  };
+
+  const getEffectiveMultiplier = (food: FoodItem): number => {
+    const unit = getSelectedUnit(food.id);
+    const inputStr = getServingInputStr(food);
+    const parsed = parseFloat(inputStr);
+    const amount = !isNaN(parsed) && parsed > 0 ? parsed : 0;
+
+    if (unit === "1g") {
+      const baseGrams = food.servingAmount > 0 ? food.servingAmount : 100;
+      return amount / baseGrams;
+    }
+    return amount;
   };
 
   const handleAddFoodToDiary = (food: FoodItem) => {
-    const mult = getServings(food.id);
+    const unit = getSelectedUnit(food.id);
+    const inputStr = getServingInputStr(food);
+    const parsed = parseFloat(inputStr);
+    const fallback = unit === "1g" ? (food.servingAmount || 100) : 1;
+    const amount = !isNaN(parsed) && parsed > 0 ? parsed : fallback;
+
+    const mult = getEffectiveMultiplier(food);
+    const calculatedMult =
+      mult > 0
+        ? mult
+        : unit === "1g"
+        ? amount / (food.servingAmount || 100)
+        : amount;
+
+    const loggedUnitLabel = unit === "1g" ? `${amount}g` : `${amount}x (${food.servingUnit})`;
+
     RepRiseStorage.addMeal({
       foodId: food.id,
       name: food.name,
       mealType: selectedMealType,
-      servings: mult,
-      servingUnit: food.servingUnit,
-      calories: Math.round(food.calories * mult),
-      protein: Number((food.protein * mult).toFixed(1)),
-      carbs: Number((food.carbs * mult).toFixed(1)),
-      fats: Number((food.fats * mult).toFixed(1)),
+      servings: amount,
+      servingUnit: loggedUnitLabel,
+      calories: Math.round(food.calories * calculatedMult),
+      protein: Number((food.protein * calculatedMult).toFixed(1)),
+      carbs: Number((food.carbs * calculatedMult).toFixed(1)),
+      fats: Number((food.fats * calculatedMult).toFixed(1)),
       loggedAt: selectedDate,
     });
 
     const isToday = selectedDate === todayStr;
     setAddFeedback(
-      `Added ${food.name} to ${selectedMealType} for ${isToday ? "today" : selectedDate}!`
+      `Added ${food.name} (${loggedUnitLabel}) to ${selectedMealType} for ${isToday ? "today" : selectedDate}!`
     );
     setTimeout(() => setAddFeedback(null), 2500);
   };
@@ -292,12 +373,24 @@ function TrackerContent() {
             {/* Food Cards List */}
             <div className="space-y-3">
               {filteredFoods.length === 0 ? (
-                <div className="p-12 text-center rounded-xl bg-surface-indigo border border-white/10 text-zinc-400 text-sm">
-                  No foods match your search criteria. You can create a custom food item!
+                <div className="p-12 text-center rounded-xl bg-surface-indigo border border-white/10 text-zinc-400 text-sm space-y-3">
+                  <p>No foods match &quot;{searchQuery}&quot;.</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setCustomFoodModalOpen(true)}
+                    className="gap-1.5 font-bold mx-auto"
+                  >
+                    <Plus size={14} weight="bold" />
+                    <span>CREATE CUSTOM FOOD ITEM</span>
+                  </Button>
                 </div>
               ) : (
                 filteredFoods.map((food) => {
-                  const mult = getServings(food.id);
+                  const selectedUnit = getSelectedUnit(food.id);
+                  const inputStr = getServingInputStr(food);
+                  const mult = getEffectiveMultiplier(food);
+
                   const scaledCalories = Math.round(food.calories * mult);
                   const scaledProtein = Number((food.protein * mult).toFixed(1));
                   const scaledCarbs = Number((food.carbs * mult).toFixed(1));
@@ -306,47 +399,120 @@ function TrackerContent() {
                   return (
                     <div
                       key={food.id}
-                      className="p-5 rounded-lg bg-surface-indigo border border-white/15 hover:border-[#5865f2]/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_3px_68px_rgba(69,42,124,0.15)]"
+                      className="p-4 sm:p-5 rounded-xl bg-surface-indigo border border-white/15 hover:border-[#5865f2]/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[0_3px_68px_rgba(69,42,124,0.15)]"
                     >
-                      <div className="text-left">
-                        <div className="flex items-center gap-2">
+                      <div className="text-left flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-bold text-base text-white">{food.name}</span>
-                          <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-full bg-[#38bdf8]/20 text-[#ffffff] border border-[#38bdf8]/30">
+                          <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-full bg-[#38bdf8]/20 text-white border border-[#38bdf8]/30">
                             {food.category}
                           </span>
+                          {food.isCustom && (
+                            <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-full bg-[#35ed7e]/20 text-[#35ed7e] border border-[#35ed7e]/30">
+                              CUSTOM
+                            </span>
+                          )}
                         </div>
-                        <div className="text-xs text-zinc-400 font-mono mt-0.5">
-                          Base Serving: {food.servingUnit}
+
+                        {/* Base serving info */}
+                        <div className="text-xs text-zinc-400 font-mono mt-1 flex items-center gap-1.5 flex-wrap">
+                          <span>Base:</span>
+                          <span className="text-zinc-200 font-semibold">{food.servingUnit}</span>
+                          {food.servingAmount && food.servingAmount > 0 && !food.servingUnit.includes(`${food.servingAmount}g`) ? (
+                            <span className="text-zinc-500">({food.servingAmount}g)</span>
+                          ) : null}
+                          <span className="text-zinc-600">·</span>
+                          <span className="text-zinc-400">{food.calories} kcal base</span>
                         </div>
-                        <div className="flex items-center gap-3 text-xs font-mono mt-2 font-bold">
-                          <span className="text-white">{scaledCalories} kcal</span>
+
+                        {/* Dynamic scaled macros */}
+                        <div className="flex items-center gap-2.5 text-xs font-mono mt-2.5 font-bold flex-wrap">
+                          <span className="text-white px-2 py-0.5 rounded-md bg-white/10 font-mono font-extrabold shadow-inner">
+                            {scaledCalories} kcal
+                          </span>
                           <span className="text-[#00b0f4]">P: {scaledProtein}g</span>
                           <span className="text-[#35ed7e]">C: {scaledCarbs}g</span>
                           <span className="text-[#38bdf8]">F: {scaledFats}g</span>
                         </div>
                       </div>
 
-                      {/* Serving Multiplier & Add Button */}
-                      <div className="flex items-center gap-3 self-end sm:self-center">
-                        <div className="flex items-center gap-1.5 bg-surface-onyx p-1 rounded-sm border border-white/10">
-                          <span className="text-[11px] text-zinc-400 pl-2">Servings:</span>
-                          <input
-                            type="number"
-                            min="0.25"
-                            max="20"
-                            step="0.25"
-                            aria-label={`Servings for ${food.name}`}
-                            value={mult}
-                            onChange={(e) => setServings(food.id, Number(e.target.value))}
-                            className="w-14 h-8 text-center rounded-xs bg-surface-indigo text-xs font-mono font-bold text-white focus:outline-none"
-                          />
+                      {/* Serving Controls & Add Button */}
+                      <div className="flex flex-wrap items-center gap-2.5 self-start md:self-center">
+                        {/* Base Serving Unit Selector Toggle */}
+                        <div className="flex items-center rounded-lg bg-surface-onyx border border-white/15 p-0.5 shadow-inner">
+                          <button
+                            type="button"
+                            onClick={() => handleUnitToggle(food, "default")}
+                            className={cn(
+                              "px-2.5 py-1 text-[11px] font-mono font-bold rounded-md transition-all cursor-pointer",
+                              selectedUnit === "default"
+                                ? "bg-[#5865f2] text-white shadow-[0_0_10px_rgba(88,101,242,0.4)]"
+                                : "text-zinc-400 hover:text-white"
+                            )}
+                            title={`Use default base serving (${food.servingUnit})`}
+                          >
+                            {food.servingUnit.length > 14 ? `${food.servingUnit.slice(0, 12)}...` : food.servingUnit}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleUnitToggle(food, "1g")}
+                            className={cn(
+                              "px-2.5 py-1 text-[11px] font-mono font-bold rounded-md transition-all cursor-pointer",
+                              selectedUnit === "1g"
+                                ? "bg-[#00b0f4] text-black font-extrabold shadow-[0_0_10px_rgba(0,176,244,0.4)]"
+                                : "text-zinc-400 hover:text-white"
+                            )}
+                            title="Log by exact grams (1g base)"
+                          >
+                            1g
+                          </button>
                         </div>
 
+                        {/* Amount Stepper & Textbox (Zero-Glitch) */}
+                        <div className="flex items-center bg-surface-onyx rounded-lg border border-white/15 p-0.5">
+                          <button
+                            type="button"
+                            onClick={() => handleStepServing(food, -1)}
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
+                            title="Decrease amount"
+                            aria-label="Decrease amount"
+                          >
+                            <Minus size={13} weight="bold" />
+                          </button>
+
+                          <div className="relative flex items-center px-1">
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              value={inputStr}
+                              onChange={(e) => handleInputChange(food.id, e.target.value)}
+                              onBlur={() => handleInputBlur(food)}
+                              aria-label={`Serving amount for ${food.name}`}
+                              className="w-14 h-7 text-center rounded-md bg-[#090c28] border border-white/10 focus:border-[#00b0f4] text-xs font-mono font-bold text-white focus:outline-none transition-colors"
+                            />
+                            <span className="text-[10px] text-zinc-400 font-mono pl-1 pr-0.5 select-none">
+                              {selectedUnit === "1g" ? "g" : "x"}
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleStepServing(food, 1)}
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
+                            title="Increase amount"
+                            aria-label="Increase amount"
+                          >
+                            <Plus size={13} weight="bold" />
+                          </button>
+                        </div>
+
+                        {/* Add Button */}
                         <Button
                           size="sm"
                           variant="green"
                           onClick={() => handleAddFoodToDiary(food)}
-                          className="gap-1 font-bold"
+                          className="gap-1 font-bold h-8 px-3.5 shadow-[0_0_12px_rgba(53,237,126,0.3)]"
                         >
                           <Plus size={14} weight="bold" />
                           <span>ADD</span>
