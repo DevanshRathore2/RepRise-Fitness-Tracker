@@ -742,37 +742,39 @@ export default function WorkoutsPage() {
                   <CaretLeft size={16} weight="bold" />
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowHistoryCalendar(!showHistoryCalendar);
-                    setFilterMode("date");
-                  }}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-xs bg-[#0c1033] hover:bg-[#121844] text-xs font-mono font-bold text-white transition-all cursor-pointer border border-white/15"
-                  title="Open interactive calendar"
-                >
-                  <Calendar size={13} className="text-[#00b0f4]" weight="bold" />
-                  <span>{selectedDate}</span>
-                </button>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowHistoryCalendar(!showHistoryCalendar);
+                      setFilterMode("date");
+                    }}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-xs bg-[#0c1033] hover:bg-[#121844] text-xs font-mono font-bold text-white transition-all cursor-pointer border border-white/15"
+                    title="Open interactive calendar"
+                  >
+                    <Calendar size={13} className="text-[#00b0f4]" weight="bold" />
+                    <span>{selectedDate}</span>
+                  </button>
 
-                {showHistoryCalendar && (
-                  <div className="absolute right-0 top-full mt-2 z-50">
-                    <div
-                      className="fixed inset-0 z-40 bg-black/20"
-                      onClick={() => setShowHistoryCalendar(false)}
-                    />
-                    <div className="relative z-50">
-                      <BasicDatePicker
-                        value={selectedDate}
-                        onChange={(newDate) => {
-                          setSelectedDate(newDate);
-                          setFilterMode("date");
-                          setShowHistoryCalendar(false);
-                        }}
+                  {showHistoryCalendar && (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50">
+                      <div
+                        className="fixed inset-0 z-40 bg-black/20"
+                        onClick={() => setShowHistoryCalendar(false)}
                       />
+                      <div className="relative z-50">
+                        <BasicDatePicker
+                          value={selectedDate}
+                          onChange={(newDate) => {
+                            setSelectedDate(newDate);
+                            setFilterMode("date");
+                            setShowHistoryCalendar(false);
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 <button
                   type="button"
