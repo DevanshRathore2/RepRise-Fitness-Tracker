@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import {
   ResponsiveContainer,
   LineChart,
@@ -19,13 +20,15 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { RepRiseStorage } from "@/lib/storage";
-import { UserProfile, WeightLog } from "@/types/fitness";
+import { MealEntry, UserProfile, WeightLog } from "@/types/fitness";
 import { DatePickerField } from "@/components/ui/calendar-1";
 
 export default function ProgressPage() {
   const [profile, setProfile] = useState<UserProfile>(RepRiseStorage.getProfile());
   const [weights, setWeights] = useState<WeightLog[]>([]);
   const [timeRange, setTimeRange] = useState<"7D" | "30D" | "90D" | "1Y" | "All">("30D");
+
+  const [meals, setMeals] = useState<MealEntry[]>([]);
 
   // Log weight modal state
   const [logModalOpen, setLogModalOpen] = useState(false);
@@ -36,19 +39,23 @@ export default function ProgressPage() {
   const refreshData = () => {
     setProfile(RepRiseStorage.getProfile());
     setWeights(RepRiseStorage.getWeights());
+    setMeals(RepRiseStorage.getAllMeals());
   };
 
   useEffect(() => {
     refreshData();
     const handleWeightsUpdate = () => setWeights(RepRiseStorage.getWeights());
     const handleProfileUpdate = () => setProfile(RepRiseStorage.getProfile());
+    const handleMealsUpdate = () => setMeals(RepRiseStorage.getAllMeals());
 
     window.addEventListener("reprise_weights_updated", handleWeightsUpdate);
     window.addEventListener("reprise_profile_updated", handleProfileUpdate);
+    window.addEventListener("reprise_meals_updated", handleMealsUpdate);
 
     return () => {
       window.removeEventListener("reprise_weights_updated", handleWeightsUpdate);
       window.removeEventListener("reprise_profile_updated", handleProfileUpdate);
+      window.removeEventListener("reprise_meals_updated", handleMealsUpdate);
     };
   }, []);
 
@@ -68,16 +75,43 @@ export default function ProgressPage() {
   const totalChange = Number((latestWeight - startingWeight).toFixed(1));
   const targetDiff = Number((latestWeight - profile.targetWeightKg).toFixed(1));
 
-  // Demo Calorie Consistency data for the past 7 days
-  const calorieConsistencyData = [
-    { day: "Mon", consumed: 2210, target: profile.dailyCalorieTarget },
-    { day: "Tue", consumed: 2280, target: profile.dailyCalorieTarget },
-    { day: "Wed", consumed: 2190, target: profile.dailyCalorieTarget },
-    { day: "Thu", consumed: 2310, target: profile.dailyCalorieTarget },
-    { day: "Fri", consumed: 2240, target: profile.dailyCalorieTarget },
-    { day: "Sat", consumed: 2400, target: profile.dailyCalorieTarget },
-    { day: "Sun", consumed: 2220, target: profile.dailyCalorieTarget },
-  ];
+  // Dynamically compute real Calorie Consistency for the past 7 days from user's logged meals
+  const calorieConsistencyData = useMemo(() => {
+    const now = new Date();
+    const result = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const dayNum = String(d.getDate()).padStart(2, "0");
+      const dateStr = `${y}-${m}-${dayNum}`;
+
+      const weekday = d.toLocaleDateString("en-US", { weekday: "short" });
+      const dayLabel = i === 0 ? "Today" : weekday;
+
+      const dayMeals = meals.filter((item) => item.loggedAt === dateStr);
+      const consumed = dayMeals.reduce((acc, item) => acc + item.calories, 0);
+
+      result.push({
+        date: dateStr,
+        day: dayLabel,
+        consumed,
+        target: profile.dailyCalorieTarget,
+      });
+    }
+    return result;
+  }, [meals, profile.dailyCalorieTarget]);
+
+  // Real compliance calculation based on logged days
+  const daysWithLoggedFood = calorieConsistencyData.filter((d) => d.consumed > 0);
+  const compliantDays = daysWithLoggedFood.filter(
+    (d) => Math.abs(d.consumed - profile.dailyCalorieTarget) <= profile.dailyCalorieTarget * 0.1
+  );
+  const adherenceRate =
+    daysWithLoggedFood.length > 0
+      ? Math.round((compliantDays.length / daysWithLoggedFood.length) * 100)
+      : null;
 
   const handleAddWeight = (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,8 +210,14 @@ export default function ProgressPage() {
               <span className="uppercase tracking-wider font-bold text-[11px] font-display">Calorie Adherence</span>
               <Fire size={20} className="text-[#5865f2]" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-white font-mono">94%</div>
-            <span className="text-[11px] text-[#35ed7e] font-semibold">Within +/- 5% threshold</span>
+            <div className="text-2xl sm:text-3xl font-extrabold text-white font-mono">
+              {adherenceRate !== null ? `${adherenceRate}%` : "--"}
+            </div>
+            <span className="text-[11px] text-zinc-400">
+              {daysWithLoggedFood.length > 0
+                ? `${daysWithLoggedFood.length} of 7 days logged`
+                : "No meals logged in past 7 days"}
+            </span>
           </div>
         </div>
 
@@ -255,37 +295,80 @@ export default function ProgressPage() {
 
         {/* Calorie Consistency Bar Chart */}
         <div className="p-6 sm:p-8 rounded-xl bg-surface-indigo border border-white/15 space-y-4 shadow-[0_3px_68px_rgba(69,42,124,0.2)]">
-          <div>
-            <h3 className="text-xl font-bold text-white uppercase font-display">7-DAY CALORIE ADHERENCE</h3>
-            <p className="text-xs text-zinc-300">
-              Daily calories consumed compared against target ({profile.dailyCalorieTarget} kcal).
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 className="text-xl font-bold text-white uppercase font-display">7-DAY CALORIE ADHERENCE</h3>
+              <p className="text-xs text-zinc-300">
+                Daily calories consumed compared against target ({profile.dailyCalorieTarget} kcal).
+              </p>
+            </div>
+            <Link
+              href="/tracker"
+              className="text-xs font-mono font-bold text-[#5865f2] hover:text-[#7983f5] transition-colors flex items-center gap-1 self-start sm:self-auto"
+            >
+              <span>LOG IN FOOD DIARY</span>
+              <span>&rarr;</span>
+            </Link>
           </div>
 
-          <div className="h-60 w-full pt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={calorieConsistencyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-                <XAxis dataKey="day" stroke="#8e9297" fontSize={11} tickLine={false} />
-                <YAxis stroke="#8e9297" fontSize={11} tickLine={false} unit=" kcal" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1e2353",
-                    borderColor: "rgba(255,255,255,0.2)",
-                    borderRadius: "12px",
-                    fontSize: "12px",
-                    color: "#ffffff",
-                  }}
-                />
-                <ReferenceLine
-                  y={profile.dailyCalorieTarget}
-                  stroke="#38bdf8"
-                  strokeDasharray="3 3"
-                />
-                <Bar dataKey="consumed" name="Consumed Calories" fill="#35ed7e" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {daysWithLoggedFood.length === 0 ? (
+            <div className="p-10 text-center rounded-xl bg-surface-onyx border border-white/10 space-y-3">
+              <p className="text-zinc-200 text-sm font-bold">
+                No food logged in the past 7 days yet.
+              </p>
+              <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                As you log your meals in the Food Diary, your actual daily calories will be tracked and charted here against your {profile.dailyCalorieTarget} kcal target.
+              </p>
+              <Link
+                href="/tracker"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#5865f2] hover:bg-[#4752c4] text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(88,101,242,0.4)]"
+              >
+                <span>OPEN FOOD DIARY</span>
+                <span>&rarr;</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="h-60 w-full pt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={calorieConsistencyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                  <XAxis dataKey="day" stroke="#8e9297" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#8e9297" fontSize={11} tickLine={false} unit=" kcal" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1e2353",
+                      borderColor: "rgba(255,255,255,0.2)",
+                      borderRadius: "12px",
+                      fontSize: "12px",
+                      color: "#ffffff",
+                    }}
+                    formatter={(val: number) => [`${val} kcal`, "Consumed"]}
+                    labelFormatter={(label, payload) => {
+                      const item = payload && payload[0]?.payload;
+                      return item ? `${item.day} (${item.date})` : label;
+                    }}
+                  />
+                  <ReferenceLine
+                    y={profile.dailyCalorieTarget}
+                    stroke="#38bdf8"
+                    strokeDasharray="3 3"
+                    label={{
+                      value: `Target: ${profile.dailyCalorieTarget} kcal`,
+                      fill: "#38bdf8",
+                      fontSize: 10,
+                      position: "insideTopRight",
+                    }}
+                  />
+                  <Bar
+                    dataKey="consumed"
+                    name="Consumed Calories"
+                    fill="#35ed7e"
+                    radius={[6, 6, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
       </main>
 
