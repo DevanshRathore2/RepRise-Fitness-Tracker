@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Plus_Jakarta_Sans } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { CloudSyncManager } from "@/components/auth/CloudSyncManager";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -28,13 +30,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`dark ${spaceGrotesk.variable} ${plusJakartaSans.variable}`}
-    >
-      <body className="min-h-screen bg-canvas text-ink font-sans antialiased overflow-x-hidden selection:bg-primary/30 selection:text-white">
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html
+        lang="en"
+        className={`dark ${spaceGrotesk.variable} ${plusJakartaSans.variable}`}
+      >
+        <body className="min-h-screen bg-canvas text-ink font-sans antialiased overflow-x-hidden selection:bg-primary/30 selection:text-white">
+          <CloudSyncManager />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

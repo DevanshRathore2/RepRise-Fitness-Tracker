@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { Show, UserButton } from "@clerk/nextjs";
 import { Barbell, List, X, ArrowRight } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -85,13 +86,38 @@ export function Navbar({ onOpenCalculator }: NavbarProps) {
 
         {/* Action CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs font-bold tracking-wider uppercase border border-white/20 hover:border-white/40 transition-colors duration-150 cursor-pointer"
-          >
-            <span>LAUNCH APP</span>
-            <ArrowRight size={14} weight="bold" />
-          </Link>
+          <Show when="signed-out">
+            <Link
+              href="/sign-in"
+              className="px-3 py-1.5 rounded-full text-xs font-mono font-bold text-zinc-300 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+            >
+              SIGN IN
+            </Link>
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#5865f2] hover:bg-[#4752c4] text-white text-xs font-mono font-bold tracking-wider uppercase transition-all shadow-[0_0_15px_rgba(88,101,242,0.4)] cursor-pointer active:scale-95"
+            >
+              <span>SIGN UP FREE</span>
+              <ArrowRight size={13} weight="bold" />
+            </Link>
+          </Show>
+
+          <Show when="signed-in">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs font-bold tracking-wider uppercase border border-white/20 hover:border-white/40 transition-colors duration-150 cursor-pointer"
+            >
+              <span>DASHBOARD</span>
+              <ArrowRight size={14} weight="bold" />
+            </Link>
+            <UserButton
+              appearance={{
+                elements: {
+                  userButtonAvatarBox: "w-8 h-8 rounded-full border border-white/20 shadow-[0_0_10px_rgba(88,101,242,0.3)]",
+                },
+              }}
+            />
+          </Show>
         </div>
 
         {/* Mobile Menu Toggle */}

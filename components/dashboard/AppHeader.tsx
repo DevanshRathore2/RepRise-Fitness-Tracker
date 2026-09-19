@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   SquaresFour,
 } from "@phosphor-icons/react";
+import { Show, UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 
 interface AppHeaderProps {
@@ -65,7 +66,7 @@ export function AppHeader({ onOpenOnboarding }: AppHeaderProps) {
           </nav>
         </div>
 
-        {/* Right: Quick actions & Recalibrate */}
+        {/* Right: Quick actions, Auth & Recalibrate */}
         <div className="flex items-center gap-2">
           {onOpenOnboarding && (
             <button
@@ -77,6 +78,26 @@ export function AppHeader({ onOpenOnboarding }: AppHeaderProps) {
               <span className="hidden sm:inline">RECALIBRATE</span>
             </button>
           )}
+
+          <Show when="signed-in">
+            <div className="flex items-center ml-0.5">
+              <UserButton
+                appearance={{
+                  elements: {
+                    userButtonAvatarBox: "w-7 h-7 ring-2 ring-[#5865f2]/40 rounded-full",
+                  },
+                }}
+              />
+            </div>
+          </Show>
+          <Show when="signed-out">
+            <Link
+              href="/sign-in"
+              className="h-7 px-3 rounded-full bg-[#5865f2] hover:bg-[#4752c4] text-[11px] font-mono font-bold text-white flex items-center gap-1.5 transition-all active:scale-95 shadow-[0_0_12px_rgba(88,101,242,0.3)] cursor-pointer"
+            >
+              SIGN IN
+            </Link>
+          </Show>
 
           <Link
             href="/"
